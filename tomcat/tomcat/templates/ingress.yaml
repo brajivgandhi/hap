@@ -1,0 +1,28 @@
+---
+# Source: tomcat/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tomcat
+  namespace: default
+  labels:
+    app.kubernetes.io/name: tomcat
+    helm.sh/chart: tomcat-10.3.11
+    app.kubernetes.io/instance: tomcat
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    prometheus.io/scrape: "true"
+spec:
+  rules:
+    - host: tomcat.info
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tomcat
+                port:
+                  name: http

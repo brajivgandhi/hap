@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: tomcat
+resources:
+- tomcat/templates/deployment.yaml
+- tomcat/templates/pvc.yaml
+- tomcat/templates/secrets.yaml
+- tomcat/templates/svc.yaml
+- tomcat/templates/ingress.yaml

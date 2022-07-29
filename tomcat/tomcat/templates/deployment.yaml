@@ -1,0 +1,138 @@
+---
+# Source: tomcat/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tomcat
+  namespace: default
+  labels:
+    app.kubernetes.io/name: tomcat
+    helm.sh/chart: tomcat-10.3.11
+    app.kubernetes.io/instance: tomcat
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/scrape: "true"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tomcat
+      app.kubernetes.io/instance: tomcat
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tomcat
+        helm.sh/chart: tomcat-10.3.11
+        app.kubernetes.io/instance: tomcat
+        app.kubernetes.io/managed-by: Helm
+      annotations:
+        prometheus.io/scrape: "true"
+    spec:
+      
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+      initContainers:
+      - args:
+        - -c
+        - |
+          mkdir -p /app-data/ROOT
+          echo '<h1>K8s Test</h1>' > /app-data/ROOT/index.html;
+          wget -O - https://search.maven.org/remotecontent?filepath=nl/nlighten/tomcat_exporter_servlet/0.0.17/tomcat_exporter_servlet-0.0.17.war > /app-data/metrics.war;
+          sleep 30;
+        command:
+        - /bin/sh
+        image: busybox
+        name: index
+        volumeMounts:
+        - mountPath: /app-data
+          name: shared-volume
+      - args:
+        - -c
+        - |
+          wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient/0.16.0/simpleclient-0.16.0.jar > /app-data/simpleclient-0.16.0.jar
+          wget -O - https://search.maven.org/remotecontent?filepath=org/teiid/simpleclient/1.0.2/simpleclient-1.0.2.jar > /app-data/simpleclient-1.0.2.jar
+          wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient_common/0.16.0/simpleclient_common-0.16.0.jar > /app-data/simpleclient_common-0.16.0.jar
+          wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient_servlet/0.16.0/simpleclient_servlet-0.16.0.jar > /app-data/simpleclient_servlet-0.16.0.jar
+          wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient_servlet_common/0.16.0/simpleclient_servlet_common-0.16.0.jar > /app-data/simpleclient_servlet_common-0.16.0.jar
+          wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient_hotspot/0.16.0/simpleclient_hotspot-0.16.0.jar > /app-data/simpleclient_hotspot-0.16.0.jar
+          wget -O - https://search.maven.org/remotecontent?filepath=nl/nlighten/tomcat_exporter_client/0.0.17/tomcat_exporter_client-0.0.17.jar > /app-data/tomcat_exporter_client-0.0.17.jar
+          sleep 50;
+        command:
+        - /bin/sh
+        image: busybox
+        name: metrics-lib
+        volumeMounts:
+        - mountPath: /app-data
+          name: shared-volume-lib
+      containers:
+        - name: tomcat
+          image: docker.io/library/tomcat:10.0.21
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: BITNAMI_DEBUG
+              value: "true"
+            - name: TOMCAT_USERNAME
+              value: "test"
+            - name: TOMCAT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tomcat
+                  key: tomcat-password
+            - name: TOMCAT_ALLOW_REMOTE_MANAGEMENT
+              value: "0"
+            - name: CATALINA_OPTS
+              value: -Djava.library.path=/usr/share/tomcat
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            failureThreshold: 6
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: "1"
+              memory: 2Gi
+            requests:
+              cpu: 300m
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /bitnami/tomcat
+            - mountPath: /usr/local/tomcat/webapps
+              name: shared-volume
+            - mountPath: /usr/share/tomcat
+              name: shared-volume-lib
+      volumes:
+        - name: data
+          emptyDir: {}
+        - emptyDir: {}
+          name: shared-volume
+        - emptyDir: {}
+          name: shared-volume-lib
