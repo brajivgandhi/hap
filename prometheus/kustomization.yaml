@@ -11,3 +11,7 @@ resources:
 - prometheus/templates/node-exporter/daemonset.yaml
 - prometheus/templates/node-exporter/serviceaccount.yaml
 - prometheus/templates/node-exporter/svc.yaml
+- prometheus/templates/alertmanager/cm.yaml
+- prometheus/templates/alertmanager/deploy.yaml
+- prometheus/templates/alertmanager/service.yaml
+- prometheus/templates/alertmanager/serviceaccount.yaml

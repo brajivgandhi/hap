@@ -11,7 +11,7 @@ imagePullSecrets:
 ##
 serviceAccounts:
   alertmanager:
-    create: false
+    create: true
     name:
     annotations: {}
   nodeExporter:
@@ -30,7 +30,7 @@ serviceAccounts:
 alertmanager:
   ## If false, alertmanager will not be installed
   ##
-  enabled: false
+  enabled: true
 
   ## Use a ClusterRole (and ClusterRoleBinding)
   ## - If set to false - we define a Role and RoleBinding in the defined namespaces ONLY
@@ -1469,7 +1469,7 @@ serverFiles:
       - job_name: tomcat
         static_configs:
           - targets:
-            - localhost:8080
+            - jmx.tomcat:8088
 
       # A scrape configuration for running Prometheus on a Kubernetes cluster.
       # This uses separate scrape configs for cluster components (i.e. API server, node)

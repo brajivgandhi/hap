@@ -32,6 +32,10 @@ data:
       static_configs:
       - targets:
         - localhost:9090
+    - job_name: tomcat
+      static_configs:
+      - targets:
+        - jmx.tomcat:8088
     - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
       job_name: kubernetes-apiservers
       kubernetes_sd_configs:
@@ -305,6 +309,29 @@ data:
         - __meta_kubernetes_pod_phase
       scrape_interval: 5m
       scrape_timeout: 30s
+    alerting:
+      alertmanagers:
+      - kubernetes_sd_configs:
+          - role: pod
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_namespace]
+          regex: default
+          action: keep
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          regex: prometheus
+          action: keep
+        - source_labels: [__meta_kubernetes_pod_label_component]
+          regex: alertmanager
+          action: keep
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_probe]
+          regex: .*
+          action: keep
+        - source_labels: [__meta_kubernetes_pod_container_port_number]
+          regex: "9093"
+          action: keep
   recording_rules.yml: |
     {}
   rules: |

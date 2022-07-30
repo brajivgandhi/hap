@@ -94,8 +94,7 @@ args: []
 ##
 extraEnvVars:
   - name: CATALINA_OPTS
-    value: "-Djava.library.path=/usr/share/tomcat"
-
+    value: "-javaagent:\"/usr/share/tomcat/jmx_prometheus_javaagent-0.16.1.jar=8088:/etc/tomcat/config.yml\""
 ## ConfigMap with extra environment variables
 ##
 extraEnvVarsCM:
@@ -283,6 +282,9 @@ extraVolumes:
   emptyDir: {}
 - name: shared-volume-lib
   emptyDir: {}
+- name: jmx-config
+  configMap:
+    name: jmx-config
 
 ## Extra volume claim templates to add to the statefulset
 ##
@@ -295,6 +297,8 @@ extraVolumeMounts:
   mountPath: /usr/local/tomcat/webapps
 - name: shared-volume-lib
   mountPath: /usr/share/tomcat
+- name: jmx-config
+  mountPath: /etc/tomcat
 ## Add init containers to the Tomcat pods.
 ## Example:
 ## initContainers:
@@ -317,9 +321,7 @@ initContainers:
   - |
     mkdir -p /app-data/ROOT
     echo '<h1>K8s Test</h1>' > /app-data/ROOT/index.html;
-    wget -O - https://search.maven.org/remotecontent?filepath=nl/nlighten/tomcat_exporter_servlet/0.0.17/tomcat_exporter_servlet-0.0.17.war > /app-data/metrics.war;
-    sleep 30;
-- name: metrics-lib
+- name: jmx-exporter
   image: busybox
   volumeMounts:
   - name: shared-volume-lib
@@ -328,14 +330,39 @@ initContainers:
   args: 
   - -c
   - |
-    wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient/0.16.0/simpleclient-0.16.0.jar > /app-data/simpleclient-0.16.0.jar
-    wget -O - https://search.maven.org/remotecontent?filepath=org/teiid/simpleclient/1.0.2/simpleclient-1.0.2.jar > /app-data/simpleclient-1.0.2.jar
-    wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient_common/0.16.0/simpleclient_common-0.16.0.jar > /app-data/simpleclient_common-0.16.0.jar
-    wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient_servlet/0.16.0/simpleclient_servlet-0.16.0.jar > /app-data/simpleclient_servlet-0.16.0.jar
-    wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient_servlet_common/0.16.0/simpleclient_servlet_common-0.16.0.jar > /app-data/simpleclient_servlet_common-0.16.0.jar
-    wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient_hotspot/0.16.0/simpleclient_hotspot-0.16.0.jar > /app-data/simpleclient_hotspot-0.16.0.jar
-    wget -O - https://search.maven.org/remotecontent?filepath=nl/nlighten/tomcat_exporter_client/0.0.17/tomcat_exporter_client-0.0.17.jar > /app-data/tomcat_exporter_client-0.0.17.jar
-    sleep 50;
+    wget -O - https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.16.1/jmx_prometheus_javaagent-0.16.1.jar > /app-data/jmx_prometheus_javaagent-0.16.1.jar;
+    chmod 755 /app-data/jmx_prometheus_javaagent-0.16.1.jar
+    sleep 5;
+# - name: index
+#   image: busybox
+#   volumeMounts:
+#   - name: shared-volume
+#     mountPath: /app-data
+#   command: ["/bin/sh"]
+#   args: 
+#   - -c
+#   - |
+#     mkdir -p /app-data/ROOT
+#     echo '<h1>K8s Test</h1>' > /app-data/ROOT/index.html;
+#     wget -O - https://search.maven.org/remotecontent?filepath=nl/nlighten/tomcat_exporter_servlet/0.0.17/tomcat_exporter_servlet-0.0.17.war > /app-data/metrics.war;
+#     sleep 30;
+# - name: metrics-lib
+#   image: busybox
+#   volumeMounts:
+#   - name: shared-volume-lib
+#     mountPath: /app-data
+#   command: ["/bin/sh"]
+#   args: 
+#   - -c
+#   - |
+#     wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient/0.16.0/simpleclient-0.16.0.jar > /app-data/simpleclient-0.16.0.jar
+#     wget -O - https://search.maven.org/remotecontent?filepath=org/teiid/simpleclient/1.0.2/simpleclient-1.0.2.jar > /app-data/simpleclient-1.0.2.jar
+#     wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient_common/0.16.0/simpleclient_common-0.16.0.jar > /app-data/simpleclient_common-0.16.0.jar
+#     wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient_servlet/0.16.0/simpleclient_servlet-0.16.0.jar > /app-data/simpleclient_servlet-0.16.0.jar
+#     wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient_servlet_common/0.16.0/simpleclient_servlet_common-0.16.0.jar > /app-data/simpleclient_servlet_common-0.16.0.jar
+#     wget -O - https://search.maven.org/remotecontent?filepath=io/prometheus/simpleclient_hotspot/0.16.0/simpleclient_hotspot-0.16.0.jar > /app-data/simpleclient_hotspot-0.16.0.jar
+#     wget -O - https://search.maven.org/remotecontent?filepath=nl/nlighten/tomcat_exporter_client/0.0.17/tomcat_exporter_client-0.0.17.jar > /app-data/tomcat_exporter_client-0.0.17.jar
+#     sleep 50;
 
 
 ## Add sidecars to the Tomcat pods.
