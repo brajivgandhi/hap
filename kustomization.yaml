@@ -4,6 +4,9 @@ resources:
 - patches/tomcat/tomcat-namespace.yaml
 - patches/tomcat/tomcat-jmx-cm.yaml
 - patches/tomcat/tomcat-jmx-svc.yaml
+- patches/tomcat/tomcat-filebeat-sidecar-config.yaml
 - tomcat
 - patches/prometheus/prometheus-namespace.yaml
 - prometheus
+- patches/elk/elk-namespace.yaml
+- elk

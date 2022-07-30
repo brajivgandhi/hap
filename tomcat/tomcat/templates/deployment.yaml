@@ -124,6 +124,27 @@ spec:
               name: shared-volume-lib
             - mountPath: /etc/tomcat
               name: jmx-config
+            - mountPath: /usr/local/tomcat/logs
+              name: logs-volume
+        - env:
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          image: docker.elastic.co/beats/filebeat:7.17.3
+          name: filebeat-sidecar
+          volumeMounts:
+          - mountPath: /usr/local/tomcat/logs
+            name: logs-volume
+          - mountPath: /usr/share/filebeat/filebeat.yml
+            name: filebeat-config
+            subPath: filebeat.yml
       volumes:
         - name: data
           emptyDir: {}
@@ -134,3 +155,11 @@ spec:
         - configMap:
             name: jmx-config
           name: jmx-config
+        - emptyDir: {}
+          name: logs-volume
+        - configMap:
+            items:
+            - key: filebeat.yml
+              path: filebeat.yml
+            name: filebeat-sidecar-config
+          name: filebeat-config

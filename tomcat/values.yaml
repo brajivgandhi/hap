@@ -285,6 +285,14 @@ extraVolumes:
 - name: jmx-config
   configMap:
     name: jmx-config
+- name: logs-volume
+  emptyDir: {}
+- name: filebeat-config
+  configMap:
+    name: filebeat-sidecar-config
+    items:
+      - key: filebeat.yml
+        path: filebeat.yml
 
 ## Extra volume claim templates to add to the statefulset
 ##
@@ -299,6 +307,8 @@ extraVolumeMounts:
   mountPath: /usr/share/tomcat
 - name: jmx-config
   mountPath: /etc/tomcat
+- name: logs-volume
+  mountPath: /usr/local/tomcat/logs
 ## Add init containers to the Tomcat pods.
 ## Example:
 ## initContainers:
@@ -375,7 +385,26 @@ initContainers:
 ##       - name: portname
 ##         containerPort: 1234
 ##
-sidecars: {}
+sidecars:
+  - name: filebeat-sidecar
+    image: docker.elastic.co/beats/filebeat:7.17.3
+    env:
+    - name: POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    - name: NODE_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: spec.nodeName
+    volumeMounts:
+    - name: logs-volume
+      mountPath: /usr/local/tomcat/logs
+    - name: filebeat-config
+      mountPath: /usr/share/filebeat/filebeat.yml
+      subPath: filebeat.yml
 
 ## Enable persistence using Persistent Volume Claims
 ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/

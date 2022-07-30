@@ -1,0 +1,19 @@
+---
+# Source: filebeat/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: elk-filebeat-role-binding
+  labels:
+    app: "elk-filebeat"
+    chart: "filebeat-7.17.3"
+    heritage: "Helm"
+    release: "elk"
+roleRef:
+  kind: Role
+  name: elk-filebeat-role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: elk-filebeat
+  namespace: default
