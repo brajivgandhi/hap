@@ -1,10 +1,10 @@
 ## Setup
 
 ### Required Tools
-minikube
-helm (v3.9.1)
-kustomize (v4.1.3)
-kubectl (1.21)
+1) minikube
+2) helm (v3.9.1)
+3) kustomize (v4.1.3)
+4) kubectl (1.21)
 
 ### Install
 
@@ -19,4 +19,3 @@ https://github.com/kubernetes/minikube/issues/1340#issuecomment-903254447
 
 4) Clone this repo to local & issue following to command to install all the resources
 ```kustomize build . | kubectl apply -f -```
-
