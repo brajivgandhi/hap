@@ -9,6 +9,8 @@ replicas: 1
 extraEnvs:
   - name: "NODE_OPTIONS"
     value: "--max-old-space-size=1800"
+  - name: "SERVER_BASEPATH"
+    value: "/kibana"
 #  - name: MY_ENVIRONMENT_VAR
 #    value: the_value_goes_here
 
@@ -135,16 +137,17 @@ service:
   httpPortName: http
 
 ingress:
-  enabled: false
+  enabled: true
   className: "nginx"
-  pathtype: ImplementationSpecific
-  annotations: {}
+  pathtype: Prefix
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
   # kubernetes.io/ingress.class: nginx
   # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: kibana-example.local
+    - host: haptest.info
       paths:
-        - path: /
+        - path: /kibana(/|$)(.*)
   #tls: []
   #  - secretName: chart-example-tls
   #    hosts:

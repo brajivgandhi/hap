@@ -1,0 +1,25 @@
+---
+# Source: kibana/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: elk-kibana
+  labels: 
+    app: kibana
+    release: "elk"
+    heritage: Helm
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: "nginx"
+  rules:
+  - host: haptest.info
+    http:
+      paths:
+      - path: /kibana(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: elk-kibana
+            port:
+              number: 5601

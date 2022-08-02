@@ -45,6 +45,8 @@ spec:
             value: "0.0.0.0"
           - name: NODE_OPTIONS
             value: --max-old-space-size=1800
+          - name: SERVER_BASEPATH
+            value: /kibana
         readinessProbe:
           failureThreshold: 3
           initialDelaySeconds: 10

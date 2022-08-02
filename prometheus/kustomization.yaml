@@ -15,3 +15,5 @@ resources:
 - prometheus/templates/alertmanager/deploy.yaml
 - prometheus/templates/alertmanager/service.yaml
 - prometheus/templates/alertmanager/serviceaccount.yaml
+- prometheus/templates/alertmanager/ingress.yaml
+- prometheus/templates/server/ingress.yaml

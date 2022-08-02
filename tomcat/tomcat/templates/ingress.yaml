@@ -16,10 +16,10 @@ metadata:
     prometheus.io/scrape: "true"
 spec:
   rules:
-    - host: tomcat.info
+    - host: haptest.info
       http:
         paths:
-          - path: /
+          - path: /app(/|$)(.*)
             pathType: Prefix
             backend:
               service:

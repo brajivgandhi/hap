@@ -480,7 +480,7 @@ ingress:
 
   ## When the ingress is enabled, a host pointing to this will be created
   ##
-  hostname: tomcat.info
+  hostname: haptest.info
 
   ## Ingress annotations done as key:value pairs
   ## For a full list of possible ingress annotations, please see
@@ -541,7 +541,7 @@ ingress:
 
   ## Ingress Path
   ##
-  path: /
+  path: /app(/|$)(.*)
 
   ## Ingress Path type
   ##

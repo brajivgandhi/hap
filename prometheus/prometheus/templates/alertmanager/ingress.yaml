@@ -1,0 +1,29 @@
+---
+# Source: prometheus/templates/alertmanager/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  labels:
+    component: "alertmanager"
+    app: prometheus
+    release: prometheus
+    chart: prometheus-15.11.0
+    heritage: Helm
+  name: prometheus-alertmanager
+  namespace: default
+spec:
+  rules:
+    - host: haptest.info
+      http:
+        paths:
+
+          - path: /alertmanager(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus-alertmanager
+                port:
+                  number: 80

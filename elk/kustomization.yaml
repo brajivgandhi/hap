@@ -14,3 +14,4 @@ resources:
 - filebeat/templates/serviceaccount.yaml
 - kibana/templates/deployment.yaml
 - kibana/templates/service.yaml
+- kibana/templates/ingress.yaml
